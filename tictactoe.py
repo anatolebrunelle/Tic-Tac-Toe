@@ -1,5 +1,6 @@
 import random
 import time
+import sys
 RED = "\033[31m"
 BLUE = "\033[34m"
 RESET = "\033[0m"
@@ -15,7 +16,7 @@ def int_to_place(x, board):
 
 
 
-def move(x, board, player):
+def move(x, board, player, playing):
     if x > 9 or x < 0:
         print("Veuillez choisir un nombre valide")
     else :
@@ -64,7 +65,10 @@ def move(x, board, player):
                             board[2][2] = "O"
         else :
             print("Case déja occupé, veuillez chosir à nouveau")
-            PVP(player, board)
+            if playing == 1:
+                IA(player, board)
+            else:
+                PVP(player, board)
 
 def check_win(board):
     lines = [
@@ -134,17 +138,37 @@ def check_possible_move(board):
     x = random.randint(0,(len(possibility)-1))
     return possibility[x]
 
+def check_full(board):
+    a = 0
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] != " ":
+                a = a + 1
+    if a == 9:
+        return True
+    else :
+        return False
+
 def AI(board):
     x = check_possible_win(board, 1)
     if x != 10:
-        move(x, board, 2)
+        move(x, board, 2, 1)
+        if check_full(board):
+            print("Le tableau est plein, c'est une égalité.")
+            sys.exit()
     else:
         y = check_possible_win(board, 2)
         if y != 10:
-            move(y, board, 2)
+            move(y, board, 2, 1)
+            if check_full(board):
+                print("Le tableau est plein, c'est une égalité.")
+                sys.exit()
         else:
             z = check_possible_move(board)
-            move(z, board, 2)
+            move(z, board, 2, 1)
+            if check_full(board):
+                print("Le tableau est plein, c'est une égalité.")
+                sys.exit()
     print("L'IA joue...")
     a = random.randint(1000, 2000)
     a = a/1000
@@ -159,40 +183,51 @@ def AI(board):
 
 def IA(joueur, board):
     if joueur == 1:
-        x = int(input("Veuillez choisir sur quel case jouer : "))
-        move(x, board, joueur)
-        print_board(board)
-        winner = check_win(board)
-        if winner:
-            print(f"Gagnant : {winner}")
-            return
-        else:
-            joueur = joueur + 1
-            if joueur == 2:
-                AI(board)
-            else :
-                joueur = 1
-                PVP(joueur, board)
+        x = input("Veuillez choisir sur quel case jouer : ")
+        if x.lower() =="rappel":
+            rappel(1, joueur, board)
+        else :
+            x = int(x)
+            move(x, board, joueur, 1)
+            print_board(board)
+            if check_full(board):
+                print("Le tableau est plein, c'est une égalité.")
+                sys.exit()
+            winner = check_win(board)
+            if winner:
+                print(f"Gagnant : {winner}")
+                return
+            else:
+                joueur = joueur + 1
+                if joueur == 2:
+                    AI(board)
+                else :
+                    joueur = 1
+                    PVP(joueur, board)
     else:
         AI(board)
 
 def PVP(joueur, board):
-    x = int(input(f"Joueur {joueur}, veuillez choisir sur quel case jouer : "))
-    move(x, board, joueur)
-    print_board(board)
-    win = check_win(board)
-    if win == 1:
-        return
+    x = input(f"Joueur {joueur}, veuillez choisir sur quel case jouer : ")
+    if x.lower() =="rappel":
+        rappel(2, joueur, board)
     else:
-        joueur = joueur + 1
-        if joueur == 2:
-            PVP(joueur, board)
-        else :
-            joueur = 1
-            PVP(joueur, board)
+        x = int(x)
+        move(x, board, joueur, 2)
+        print_board(board)
+        win = check_win(board)
+        if win == 1:
+            return
+        else:
+            joueur = joueur + 1
+            if joueur == 2:
+                PVP(joueur, board)
+            else :
+                joueur = 1
+                PVP(joueur, board)
 
-def first():
-    print("Ceci est le tableau avec lequel vous jouerez :")
+def rappel(play, joueur, board):
+    print("Ceci est le tableau avec lequel vous jouez :")
     x = 3
     y = 3
     n = 1
@@ -204,8 +239,20 @@ def first():
         print(" | ".join(row_values))
         if i < x - 1:
             print("-" * 9)
+    if play == 1:
+        IA(joueur, board)
+    elif play == 2:
+        PVP(joueur, board)
+    else:
+        return
+    
+def first():
+    rappel(0, 1, ["hello"])
+    x = 3
+    y = 3
     board = [[" " for i in range(x)] for j in range(y)]
-    print("Le premier joueur seras X tandit que le second joueur seras O")
+    print("Le premier joueur seras X tandit que le second joueur seras O.")
+    print('Vous pouvez écrir "rappel" pour avoir un rappel des cases du tableau.')
     playing = int(input("Voulez vous jouer contre : 1, un IA ou 2, un autre joueur en local : "))
     if playing == 2:
         PVP(1, board)
