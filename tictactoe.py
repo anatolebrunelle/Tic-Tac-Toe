@@ -17,58 +17,26 @@ def int_to_place(x, board):
 
 
 def move(x, board, player, playing):
-    if x > 9 or x < 0:
+    if x < 1 or x > 9:
         print("Veuillez choisir un nombre valide")
-    else :
-        place = int_to_place(x, board)
-        if place == " ":
-            match player:
-                case 1:
-                    match x:
-                        case 1:
-                            board[0][0] = "X"
-                        case 2:
-                            board[0][1] = "X"
-                        case 3:
-                            board[0][2] = "X"
-                        case 4:
-                            board[1][0] = "X"
-                        case 5:
-                            board[1][1] = "X"
-                        case 6:
-                            board[1][2] = "X"
-                        case 7:
-                            board[2][0] = "X"
-                        case 8:
-                            board[2][1] = "X"
-                        case 9:
-                            board[2][2] = "X"
-                case 2:
-                    match x:
-                        case 1:
-                            board[0][0] = "O"
-                        case 2:
-                            board[0][1] = "O"
-                        case 3:
-                            board[0][2] = "O"
-                        case 4:
-                            board[1][0] = "O"
-                        case 5:
-                            board[1][1] = "O"
-                        case 6:
-                            board[1][2] = "O"
-                        case 7:
-                            board[2][0] = "O"
-                        case 8:
-                            board[2][1] = "O"
-                        case 9:
-                            board[2][2] = "O"
-        else :
-            print("Case déja occupé, veuillez chosir à nouveau")
-            if playing == 1:
-                IA(player, board)
-            else:
-                PVP(player, board)
+        if playing == 1:
+            IA(player, board)
+        else:
+            PVP(player, board)
+        return
+
+    row = (x - 1) // 3
+    col = (x - 1) % 3
+
+    if board[row][col] == " ":
+        board[row][col] = "X" if player == 1 else "O"
+    else:
+        print("Case déjà occupée, veuillez choisir à nouveau")
+        if playing == 1:
+            IA(player, board)
+        else:
+            PVP(player, board)
+
 
 def check_win(board):
     lines = [
